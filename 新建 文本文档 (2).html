@@ -1,0 +1,95 @@
+import random
+import time
+from tkinter import Tk, Canvas, messagebox
+
+# 自定义配置
+NAME = "何典周"  # 对方的名字
+COLORS = ["#FF69B4", "#FF1493", "#FF00FF", "#FF3399"]  # 粉紫色系
+MESSAGE = "你愿意让我成为\n你的永恒程序员吗？\n\n♡ 编译我们的未来 ♡"
+
+def create_heart(canvas):
+    """生成随机心形流星"""
+    x = random.randint(50, 750)
+    size = random.randint(20, 40)
+    heart = canvas.create_text(
+        x, -50,
+        text="♥",
+        fill=random.choice(COLORS),
+        font=("Arial", size),
+        anchor="center"
+    )
+    return heart
+
+def animate(canvas, hearts):
+    """流星雨动画"""
+    for heart in list(hearts):
+        x, y = canvas.coords(heart)
+        if y < 600:
+            canvas.move(heart, 0, 8)
+            canvas.itemconfig(heart, 
+                fill=random.choice(COLORS))  # 动态颜色变化
+        else:
+            canvas.delete(heart)
+            hearts.remove(heart)
+    
+    if random.random() < 0.3:  # 控制流星密度
+        new_heart = create_heart(canvas)
+        hearts.append(new_heart)
+    
+    canvas.after(50, animate, canvas, hearts)
+
+def show_confession(canvas):
+    """渐进式显示表白"""
+    canvas.delete("all")
+    texts = [
+        ("正在初始化心动协议...", 30),
+        ("加载温柔模块...", 30),
+        ("解密你的微笑...", 30),
+        ("编译专属浪漫...", 40),
+        ("═════ 成功 ═════", 25),
+        (f"\n{NAME}", 60),
+        (MESSAGE, 40)
+    ]
+    
+    y_pos = 200
+    for text, size in texts:
+        canvas.create_text(
+            400, y_pos,
+            text=text,
+            fill=random.choice(COLORS),
+            font=("微软雅黑", size, "bold"),
+            anchor="center",
+            tags="confession"
+        )
+        y_pos += 70
+        canvas.update()
+        time.sleep(1.2 if "♡" in text else 0.8)
+    
+    # 添加动态闪烁效果
+    for _ in range(8):
+        for item in canvas.find_withtag("confession"):
+            canvas.itemconfig(item, 
+                fill=random.choice(COLORS))
+        canvas.update()
+        time.sleep(0.2)
+    
+    messagebox.showinfo("永恒承诺", 
+        f"{NAME}，我愿用余生\n为你写永不报错的代码")
+
+def main():
+    root = Tk()
+    root.title("星语心愿")
+    canvas = Canvas(root, width=800, height=600, bg="black")
+    canvas.pack()
+
+    # 开始流星雨动画
+    hearts = []
+    animate(canvas, hearts)
+
+    # 5秒后显示表白内容
+    canvas.after(5000, show_confession, canvas)
+    
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
